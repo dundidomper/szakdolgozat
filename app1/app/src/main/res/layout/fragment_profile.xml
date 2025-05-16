@@ -1,0 +1,70 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+        <!-- Profilkép placeholder -->
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_profile"
+            android:contentDescription="Profilkép"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Becenév -->
+        <TextView
+            android:id="@+id/nicknameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/becenev"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Email -->
+        <TextView
+            android:id="@+id/emailTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pelda_email"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Statisztikák -->
+        <TextView
+            android:id="@+id/workoutsCompletedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/befejezett_edzesek"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/journalEntriesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/naplo_bejegyzesek"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Kijelentkezés gomb -->
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/kijelentkezes" />
+
+        <!-- Fióktörlés gomb -->
+        <Button
+            android:id="@+id/deleteProfileButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:text="@string/profiltorles" />
+    </LinearLayout>
+</ScrollView>
