@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "462904842503",
+    "project_id": "szakdolgozat-8faa4",
+    "storage_bucket": "szakdolgozat-8faa4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:462904842503:android:6606d2d3b0193136c14da2",
+        "android_client_info": {
+          "package_name": "com.example.app1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRHGTZimLoaEPMA-TON6hdrzP8XWNI2gY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/navigation_learn"
+        android:icon="@drawable/ic_school"
+        android:title="@string/title_elmelet" />
+
+    <item
+        android:id="@+id/navigation_training"
+        android:icon="@drawable/ic_training"
+        android:title="@string/title_training" />
+
+    <item
+        android:id="@+id/navigation_diary"
+        android:icon="@drawable/ic_diary"
+        android:title="@string/title_naplo" />
+
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/title_profil" />
+
+</menu>
