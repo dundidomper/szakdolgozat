@@ -5,6 +5,17 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <TextView
+        android:id="@+id/txtReminderTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/emlekezteto"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"/>
+
     <EditText
         android:id="@+id/editNickname"
         android:layout_width="match_parent"

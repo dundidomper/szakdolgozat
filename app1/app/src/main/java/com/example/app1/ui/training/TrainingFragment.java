@@ -74,7 +74,7 @@ public class TrainingFragment extends Fragment {
                     return;
                 }
                 intent.putExtra("workout", workout);
-                viewModel.markWorkoutAsFinished();
+//                viewModel.markWorkoutAsFinished();
                 startActivity(intent);
                 }
         });
@@ -90,6 +90,16 @@ public class TrainingFragment extends Fragment {
                 completedContainer.addView(card);
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("TrainingFragment", "onResume called - Refreshing data!");
+
+        if (viewModel != null) {
+            viewModel.loadWorkouts();
+        }
     }
 }
 

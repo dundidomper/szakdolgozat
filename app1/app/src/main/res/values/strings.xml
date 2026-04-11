@@ -103,4 +103,5 @@
     <string name="becenev_modositas">Becenév módosítása</string>
     <string name="email_modositas">Email cím módosítása</string>
     <string name="jelszo_modositas">Jelszó módosítása</string>
+    <string name="emlekezteto">Emlékeztető: nincs beállítva</string>
 </resources>

@@ -1,7 +1,12 @@
 package com.example.app1.ui.profile;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -18,9 +24,13 @@ import android.widget.Toast;
 
 import com.example.app1.LoginActivity;
 import com.example.app1.R;
+import com.example.app1.ReminderReceiver;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 
 public class ProfileFragment extends Fragment {
@@ -70,10 +80,35 @@ public class ProfileFragment extends Fragment {
             EditText editEmail = dialogView.findViewById(R.id.editEmail);
             EditText editPassword = dialogView.findViewById(R.id.editPassword);
 
+            TextView txtReminderTime = dialogView.findViewById(R.id.txtReminderTime);
+
+            SharedPreferences prefs = getContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+            int savedHour = prefs.getInt("reminder_hour", -1);
+            int savedMinute = prefs.getInt("reminder_minute", -1);
+
+            if (savedHour != -1) {
+                String formatted = String.format(Locale.getDefault(), "%02d:%02d", savedHour, savedMinute);
+                txtReminderTime.setText("Emlékeztető: " + formatted);
+            }
+
+            txtReminderTime.setOnClickListener(v1 -> {
+                TimePickerDialog timePicker = new TimePickerDialog(getContext(),
+                        (dialogView2, hour, minute) -> {
+
+                            saveReminderTime(hour, minute);
+                            scheduleReminder(hour, minute);
+
+                            String formatted = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
+                            txtReminderTime.setText("Emlékeztető: " + formatted);
+
+                        }, 18, 0, true);
+                timePicker.show();
+            });
+
             new AlertDialog.Builder(getContext())
-                    .setTitle("Edit Profile")
+                    .setTitle("Beállítások")
                     .setView(dialogView)
-                    .setPositiveButton("Save", (dialog, which) -> {
+                    .setPositiveButton("Mentés", (dialog, which) -> {
 
                         String nickname = editNickname.getText().toString();
                         String email = editEmail.getText().toString();
@@ -81,7 +116,7 @@ public class ProfileFragment extends Fragment {
 
                         updateProfile(nickname, email, password);
                     })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton("Mégse", null)
                     .show();
         });
 
@@ -132,9 +167,9 @@ public class ProfileFragment extends Fragment {
         }
 
         if (!email.isEmpty()) {
-            user.updateEmail(email)
+            user.verifyBeforeUpdateEmail(email)
                     .addOnSuccessListener(aVoid ->
-                            Toast.makeText(getContext(), "Email updated", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(getContext(), "Email cím frissítve", Toast.LENGTH_SHORT).show()
                     )
                     .addOnFailureListener(e ->
                             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
@@ -144,12 +179,51 @@ public class ProfileFragment extends Fragment {
         if (!password.isEmpty()) {
             user.updatePassword(password)
                     .addOnSuccessListener(aVoid ->
-                            Toast.makeText(getContext(), "Password updated", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(getContext(), "Jelszó frissítve", Toast.LENGTH_SHORT).show()
                     )
                     .addOnFailureListener(e ->
                             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
                     );
         }
+    }
+
+    private void saveReminderTime(int hour, int minute) {
+        SharedPreferences prefs = getContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        prefs.edit()
+                .putInt("reminder_hour", hour)
+                .putInt("reminder_minute", minute)
+                .apply();
+    }
+
+    private void scheduleReminder(int hour, int minute) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        Intent intent = new Intent(getContext(), ReminderReceiver.class);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                getContext(),
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        AlarmManager alarmManager =
+                (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+
+        alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+        );
     }
 
 }
