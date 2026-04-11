@@ -1,5 +1,6 @@
 package com.example.app1.ui.profile;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -7,10 +8,15 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -34,11 +40,31 @@ import java.util.Locale;
 
 
 public class ProfileFragment extends Fragment {
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private int tempHour, tempMinute; // To hold the time while we ask
 
     private ProfileViewModel viewModel;
 
     public ProfileFragment() {
         super(R.layout.fragment_profile);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        requestPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        // They said yes! Save and schedule it.
+                        saveReminderTime(tempHour, tempMinute);
+                        scheduleReminder(tempHour, tempMinute);
+                        Toast.makeText(getContext(), "Emlékeztető beállítva!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Értesítések letiltva.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override
@@ -94,13 +120,23 @@ public class ProfileFragment extends Fragment {
             txtReminderTime.setOnClickListener(v1 -> {
                 TimePickerDialog timePicker = new TimePickerDialog(getContext(),
                         (dialogView2, hour, minute) -> {
-
-                            saveReminderTime(hour, minute);
-                            scheduleReminder(hour, minute);
+                            tempHour = hour;
+                            tempMinute = minute;
 
                             String formatted = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
-                            txtReminderTime.setText("Emlékeztető: " + formatted);
+                            txtReminderTime.setText("Reminder time: " + formatted);
 
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                                    saveReminderTime(hour, minute);
+                                    scheduleReminder(hour, minute);
+                                } else {
+                                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                                }
+                            } else {
+                                saveReminderTime(hour, minute);
+                                scheduleReminder(hour, minute);
+                            }
                         }, 18, 0, true);
                 timePicker.show();
             });
@@ -227,11 +263,3 @@ public class ProfileFragment extends Fragment {
     }
 
 }
-
-
-
-//@Override
-//public void onDestroyView() {
-//    super.onDestroyView();
-//    binding = null;
-//}

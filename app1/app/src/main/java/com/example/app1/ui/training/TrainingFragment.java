@@ -74,7 +74,6 @@ public class TrainingFragment extends Fragment {
                     return;
                 }
                 intent.putExtra("workout", workout);
-//                viewModel.markWorkoutAsFinished();
                 startActivity(intent);
                 }
         });
