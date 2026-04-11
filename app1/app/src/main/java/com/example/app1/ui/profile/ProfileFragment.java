@@ -9,13 +9,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.app1.LoginActivity;
 import com.example.app1.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class ProfileFragment extends Fragment {
@@ -36,6 +41,7 @@ public class ProfileFragment extends Fragment {
         TextView emailText = view.findViewById(R.id.emailTextView);
         TextView workoutsText = view.findViewById(R.id.workoutsCompletedTextView);
         TextView journalText = view.findViewById(R.id.journalEntriesTextView);
+        Button settingsButton = view.findViewById(R.id.settingsButton);
         Button logoutButton = view.findViewById(R.id.logoutButton);
         Button deleteButton = view.findViewById(R.id.deleteProfileButton);
 
@@ -53,6 +59,30 @@ public class ProfileFragment extends Fragment {
 
         viewModel.getDiaries().observe(getViewLifecycleOwner(), count -> {
             journalText.setText("Naplóbejegyzések: " + count);
+        });
+
+
+        settingsButton.setOnClickListener(v -> {
+            View dialogView = LayoutInflater.from(getContext())
+                    .inflate(R.layout.dialog_settings, null);
+
+            EditText editNickname = dialogView.findViewById(R.id.editNickname);
+            EditText editEmail = dialogView.findViewById(R.id.editEmail);
+            EditText editPassword = dialogView.findViewById(R.id.editPassword);
+
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Edit Profile")
+                    .setView(dialogView)
+                    .setPositiveButton("Save", (dialog, which) -> {
+
+                        String nickname = editNickname.getText().toString();
+                        String email = editEmail.getText().toString();
+                        String password = editPassword.getText().toString();
+
+                        updateProfile(nickname, email, password);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
         logoutButton.setOnClickListener(v -> {
@@ -86,6 +116,40 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         viewModel.loadUserData();
+    }
+
+    private void updateProfile(String nickname, String email, String password) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        if (user == null) return;
+
+        String uid = user.getUid();
+
+        if (!nickname.isEmpty()) {
+            db.collection("users").document(uid)
+                    .update("nickname", nickname);
+        }
+
+        if (!email.isEmpty()) {
+            user.updateEmail(email)
+                    .addOnSuccessListener(aVoid ->
+                            Toast.makeText(getContext(), "Email updated", Toast.LENGTH_SHORT).show()
+                    )
+                    .addOnFailureListener(e ->
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
+        }
+
+        if (!password.isEmpty()) {
+            user.updatePassword(password)
+                    .addOnSuccessListener(aVoid ->
+                            Toast.makeText(getContext(), "Password updated", Toast.LENGTH_SHORT).show()
+                    )
+                    .addOnFailureListener(e ->
+                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
+        }
     }
 
 }

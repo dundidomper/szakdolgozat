@@ -46,6 +46,12 @@
             android:layout_height="wrap_content"
             android:text="@string/naplo_bejegyzesek"
             android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/settingsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/beallitasok" />
 >
         <Button
             android:id="@+id/logoutButton"

@@ -99,4 +99,8 @@
     <string name="placeholder_bejegyzes">Ez egy naplóbejegyzés.</string>
     <string name="torles">Törlés</string>
     <string name="tovabb">Tovább</string>
+    <string name="beallitasok">Beállítások</string>
+    <string name="becenev_modositas">Becenév módosítása</string>
+    <string name="email_modositas">Email cím módosítása</string>
+    <string name="jelszo_modositas">Jelszó módosítása</string>
 </resources>
