@@ -1,5 +1,11 @@
 package com.example.app1.ui.profile;
 
+import static java.security.AccessController.getContext;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.widget.Toast;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -61,6 +67,41 @@ public class ProfileViewModel extends ViewModel {
                         user.delete().addOnCompleteListener(onCompleteListener);
                     });
         }
+    }
+
+    public void updateProfile(String nickname, String email, String password,
+                              Runnable onSuccess, java.util.function.Consumer<String> onError) {
+
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) return;
+
+        String uid = user.getUid();
+
+        if (!nickname.isEmpty()) {
+            db.collection("users").document(uid)
+                    .update("nickname", nickname)
+                    .addOnSuccessListener(aVoid -> onSuccess.run());
+        }
+
+        if (!email.isEmpty()) {
+            user.verifyBeforeUpdateEmail(email)
+                    .addOnSuccessListener(aVoid -> onSuccess.run())
+                    .addOnFailureListener(e -> onError.accept(e.getMessage()));
+        }
+
+        if (!password.isEmpty()) {
+            user.updatePassword(password)
+                    .addOnSuccessListener(aVoid -> onSuccess.run())
+                    .addOnFailureListener(e -> onError.accept(e.getMessage()));
+        }
+    }
+
+    public void saveReminderTime(Context context, int hour, int minute) {
+        SharedPreferences prefs = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        prefs.edit()
+                .putInt("reminder_hour", hour)
+                .putInt("reminder_minute", minute)
+                .apply();
     }
 
 }

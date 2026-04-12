@@ -57,8 +57,7 @@ public class ProfileFragment extends Fragment {
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
-                        // They said yes! Save and schedule it.
-                        saveReminderTime(tempHour, tempMinute);
+                        viewModel.saveReminderTime(requireContext(), tempHour, tempMinute);
                         scheduleReminder(tempHour, tempMinute);
                         Toast.makeText(getContext(), "Emlékeztető beállítva!", Toast.LENGTH_SHORT).show();
                     } else {
@@ -128,13 +127,13 @@ public class ProfileFragment extends Fragment {
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                                    saveReminderTime(hour, minute);
+                                    viewModel.saveReminderTime(requireContext(), tempHour, tempMinute);
                                     scheduleReminder(hour, minute);
                                 } else {
                                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
                                 }
                             } else {
-                                saveReminderTime(hour, minute);
+                                viewModel.saveReminderTime(requireContext(), tempHour, tempMinute);
                                 scheduleReminder(hour, minute);
                             }
                         }, 18, 0, true);
@@ -150,7 +149,11 @@ public class ProfileFragment extends Fragment {
                         String email = editEmail.getText().toString();
                         String password = editPassword.getText().toString();
 
-                        updateProfile(nickname, email, password);
+                        viewModel.updateProfile(nickname, email, password,
+                                () -> Toast.makeText(getContext(), "Sikeres frissítés", Toast.LENGTH_SHORT).show(),
+                                error -> Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show()
+                        );
+                        viewModel.loadUserData();
                     })
                     .setNegativeButton("Mégse", null)
                     .show();
@@ -187,48 +190,6 @@ public class ProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         viewModel.loadUserData();
-    }
-
-    private void updateProfile(String nickname, String email, String password) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        if (user == null) return;
-
-        String uid = user.getUid();
-
-        if (!nickname.isEmpty()) {
-            db.collection("users").document(uid)
-                    .update("nickname", nickname);
-        }
-
-        if (!email.isEmpty()) {
-            user.verifyBeforeUpdateEmail(email)
-                    .addOnSuccessListener(aVoid ->
-                            Toast.makeText(getContext(), "Email cím frissítve", Toast.LENGTH_SHORT).show()
-                    )
-                    .addOnFailureListener(e ->
-                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
-        }
-
-        if (!password.isEmpty()) {
-            user.updatePassword(password)
-                    .addOnSuccessListener(aVoid ->
-                            Toast.makeText(getContext(), "Jelszó frissítve", Toast.LENGTH_SHORT).show()
-                    )
-                    .addOnFailureListener(e ->
-                            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
-        }
-    }
-
-    private void saveReminderTime(int hour, int minute) {
-        SharedPreferences prefs = getContext().getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        prefs.edit()
-                .putInt("reminder_hour", hour)
-                .putInt("reminder_minute", minute)
-                .apply();
     }
 
     private void scheduleReminder(int hour, int minute) {
