@@ -41,7 +41,7 @@ import java.util.Locale;
 
 public class ProfileFragment extends Fragment {
     private ActivityResultLauncher<String> requestPermissionLauncher;
-    private int tempHour, tempMinute; // To hold the time while we ask
+    private int tempHour, tempMinute;
 
     private ProfileViewModel viewModel;
 

@@ -43,7 +43,6 @@ public class TrainingViewModel extends ViewModel {
 
             canStartToday.setValue(lastWorkoutDate == null || !lastWorkoutDate.equals(today));
 
-            // Következő edzés
             db.collection("workouts").document(String.valueOf(finished)).get().addOnSuccessListener(doc -> {
                 Workout workout = doc.toObject(Workout.class);
                 if (workout != null) {
@@ -52,7 +51,6 @@ public class TrainingViewModel extends ViewModel {
                 }
             });
 
-            // Befejezett edzések
             List<Workout> completed = new ArrayList<>();
             for (int i = 0; i < finished; i++) {
                 int index = i;
